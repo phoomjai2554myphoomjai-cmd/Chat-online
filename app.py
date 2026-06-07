@@ -7,8 +7,8 @@ import os
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_super_chat_key'
 
-# ปรับให้ยืดหยุ่นที่สุดสำหรับรันบนคลาวด์ฟรี
-socketio = SocketIO(app, cors_allowed_origins="*")
+# เปิดเซิร์ฟเวอร์แชทแบบให้ Render คุมจังหวะได้ง่ายที่สุด
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='gevent')
 
 TZ_BANGKOK = pytz.timezone('Asia/Bangkok')
 
@@ -29,6 +29,6 @@ def handle_message(data):
     emit('receive_message', chat_data, broadcast=True)
 
 if __name__ == '__main__':
-    # ดึง Port จาก Render มาใช้ และเปิดรับสัญญาณรอบทิศทาง (0.0.0.0)
     port = int(os.environ.get('PORT', 5000))
-    socketio.run(app, host='0.0.0.0', port=port, allow_unsafe_werkzeug=True)
+    # ปรับโหมดการทำงานให้เรียบง่ายและเป็นมิตรกับเซิร์ฟเวอร์ภายนอก
+    socketio.run(app, host='0.0.0.0', port=port, log_output=True)
