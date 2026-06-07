@@ -41,10 +41,26 @@
         
         let myUsername = "";
 
+        // 🔎 ด่านแรก: พอเปิดเว็บมาปุ๊บ ให้เช็คทันทีว่าเครื่องนี้เคยบันทึกชื่อไว้ไหม?
+        window.onload = function() {
+            const savedUsername = localStorage.getItem('chat_secret_username');
+            if (savedUsername) {
+                // ถ้าเจอชื่อเก่าในเครื่อง ให้ล็อกอินเข้าห้องแชทให้เลยอัตโนมัติ!
+                myUsername = savedUsername;
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('chat-screen').style.display = 'block';
+                document.getElementById('welcome-text').innerText = `ต้อนรับกลับ: ${myUsername}`;
+            }
+        };
+
         function joinChat() {
             const input = document.getElementById('username-input').value.trim();
             if (input) {
                 myUsername = input;
+                
+                // 💾 บันทึกชื่อลงความจำถาวรของบราวเซอร์ในเครื่อง
+                localStorage.setItem('chat_secret_username', myUsername);
+                
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('chat-screen').style.display = 'block';
                 document.getElementById('welcome-text').innerText = `คุยกันในนาม: ${myUsername}`;
@@ -68,10 +84,10 @@
             }
         }
 
-        // 📥 ฟังก์ชันใหม่: รอรับประวัติข้อความเก่าจากเซิร์ฟเวอร์มาวาดขึ้นหน้าจอตอนเพิ่งเข้าเว็บ
+        // โหลดประวัติข้อความเก่า
         socket.on('load_history', function(history) {
             const messagesDiv = document.getElementById('messages');
-            messagesDiv.innerHTML = ''; // ล้างหน้าจอให้สะอาดก่อนโหลด
+            messagesDiv.innerHTML = '';
             
             history.forEach(function(data) {
                 const messageElement = document.createElement('div');
@@ -86,7 +102,7 @@
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         });
 
-        // รับข้อความสดใหม่แบบเรียลไทม์
+        // รับข้อความใหม่
         socket.on('receive_message', function(data) {
             const messagesDiv = document.getElementById('messages');
             const messageElement = document.createElement('div');
