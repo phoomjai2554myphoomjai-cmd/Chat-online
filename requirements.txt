@@ -1,4 +1,5 @@
-flask
-flask-socketio
-pytz
-eventlet
+Flask==3.0.3
+Flask-SocketIO==5.3.6
+pytz==2024.1
+eventlet==0.36.1
+gunicorn==22.0.0
