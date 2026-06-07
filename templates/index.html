@@ -35,7 +35,6 @@
     </div>
 
     <script>
-        // บังคับให้คุยผ่านทาง Websocket ตรงๆ เพื่อเจาะกำแพงระบบล็อกคลาวด์ของ Render
         const socket = io({
             transports: ['websocket', 'polling']
         });
@@ -58,7 +57,6 @@
             const msgInput = document.getElementById('message-input');
             const message = msgInput.value.trim();
             if (message && myUsername) {
-                // ส่งข้อมูลเข้าเซิร์ฟเวอร์
                 socket.emit('send_message', { 'username': myUsername, 'message': message });
                 msgInput.value = '';
             }
@@ -70,13 +68,30 @@
             }
         }
 
-        // รับข้อมูลแล้วดึงค่าแบบรองรับการถอดรหัส Object จาก Python
+        // 📥 ฟังก์ชันใหม่: รอรับประวัติข้อความเก่าจากเซิร์ฟเวอร์มาวาดขึ้นหน้าจอตอนเพิ่งเข้าเว็บ
+        socket.on('load_history', function(history) {
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML = ''; // ล้างหน้าจอให้สะอาดก่อนโหลด
+            
+            history.forEach(function(data) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('msg');
+                const user = data.username || data['username'];
+                const message = data.message || data['message'];
+                const time = data.time || data['time'];
+                
+                messageElement.innerHTML = `<span class="user">${user}:</span><span>${message}</span><span class="time">${time}</span>`;
+                messagesDiv.appendChild(messageElement);
+            });
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+
+        // รับข้อความสดใหม่แบบเรียลไทม์
         socket.on('receive_message', function(data) {
             const messagesDiv = document.getElementById('messages');
             const messageElement = document.createElement('div');
             messageElement.classList.add('msg');
             
-            // ดึงข้อมูลออกมารองรับ Array-mapping ทั้งแบบ . หรือแบบ []
             const user = data.username || data['username'];
             const message = data.message || data['message'];
             const time = data.time || data['time'];
@@ -84,7 +99,7 @@
             messageElement.innerHTML = `<span class="user">${user}:</span><span>${message}</span><span class="time">${time}</span>`;
             
             messagesDiv.appendChild(messageElement);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight; // เลื่อนหน้าจอลงมาล่างสุดอัตโนมัติ
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
         });
     </script>
 </body>
