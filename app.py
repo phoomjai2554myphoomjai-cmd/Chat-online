@@ -7,7 +7,7 @@ import os
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_super_chat_key'
 
-# เปิดเซิร์ฟเวอร์แชทแบบให้ Render คุมจังหวะได้ง่ายที่สุด
+# เปลี่ยนมาใช้ระบบ 'gevent' เพื่อสยบบั๊ก Python เวอร์ชันใหม่
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='gevent')
 
 TZ_BANGKOK = pytz.timezone('Asia/Bangkok')
@@ -30,5 +30,5 @@ def handle_message(data):
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    # ปรับโหมดการทำงานให้เรียบง่ายและเป็นมิตรกับเซิร์ฟเวอร์ภายนอก
-    socketio.run(app, host='0.0.0.0', port=port, log_output=True)
+    # รันตรงผ่านคำสั่งพื้นฐาน สบายใจสุด
+    socketio.run(app, host='0.0.0.0', port=port)
